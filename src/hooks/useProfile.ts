@@ -24,7 +24,7 @@ export function useUpdateProfile() {
   const { user } = useAuth();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (updates: Record<string, unknown>) => {
+    mutationFn: async (updates: { display_name?: string; total_points?: number; current_streak?: number; longest_streak?: number; last_activity_date?: string; quizzes_completed?: number }) => {
       if (!user) throw new Error("Not authenticated");
       const { error } = await supabase
         .from("profiles")
