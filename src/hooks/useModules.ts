@@ -1,17 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { LEARNING_MODULES, QUIZ_QUESTIONS } from "@/data/mockData";
 
 export function useModules() {
   return useQuery({
     queryKey: ["modules"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("learning_modules")
-        .select("*")
-        .order("order_index");
-      if (error) throw error;
-      return data;
+      return LEARNING_MODULES;
     },
   });
 }
@@ -21,13 +17,7 @@ export function useQuizQuestions(moduleId: string | undefined) {
     queryKey: ["quiz-questions", moduleId],
     queryFn: async () => {
       if (!moduleId) return [];
-      const { data, error } = await supabase
-        .from("quiz_questions")
-        .select("*")
-        .eq("module_id", moduleId)
-        .order("order_index");
-      if (error) throw error;
-      return data;
+      return QUIZ_QUESTIONS.filter(q => q.module_id === moduleId);
     },
     enabled: !!moduleId,
   });

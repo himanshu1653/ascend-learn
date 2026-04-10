@@ -29,6 +29,33 @@ export default function Quiz() {
   const [score, setScore] = useState(0);
   const [pointsEarned, setPointsEarned] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+
+  useEffect(() => {
+    if (finished || !questions) return;
+    
+    if (timeLeft <= 0) {
+      toast({
+        title: "Time's up!",
+        description: "Your quiz has been auto-submitted.",
+        variant: "destructive",
+      });
+      finishQuiz();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, finished, questions]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   const module = modules?.find((m) => m.id === moduleId);
   const question = questions?.[currentQ];
@@ -216,7 +243,7 @@ export default function Quiz() {
           </p>
         )}
         <div className="flex gap-3 justify-center">
-          <Button onClick={() => { setCurrentQ(0); setScore(0); setPointsEarned(0); setSelected(null); setShowResult(false); setFinished(false); }} variant="outline">
+          <Button onClick={() => { setCurrentQ(0); setScore(0); setPointsEarned(0); setSelected(null); setShowResult(false); setFinished(false); setTimeLeft(600); }} variant="outline">
             <RotateCcw className="w-4 h-4 mr-2" /> Retry
           </Button>
           <Button onClick={() => navigate("/modules")} className="gradient-primary text-primary-foreground">
@@ -231,11 +258,22 @@ export default function Quiz() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-xl font-bold font-display mb-1">{module?.title}</h1>
-        <div className="flex items-center gap-3">
-          <Progress value={progressPct} className="flex-1 h-2" />
-          <span className="text-sm text-muted-foreground font-medium">{currentQ + 1}/{total}</span>
+      <div className="flex items-center justify-between">
+        <div className="flex-1 mr-6">
+          <h1 className="text-xl font-bold font-display mb-1 truncate">{module?.title}</h1>
+          <div className="flex items-center gap-3">
+            <Progress value={progressPct} className="flex-1 h-2" />
+            <span className="text-sm text-muted-foreground font-medium shrink-0">{currentQ + 1}/{total}</span>
+          </div>
+        </div>
+        <div className={cn(
+          "flex items-center gap-2 px-4 py-2 rounded-2xl font-bold font-display border transition-all shrink-0",
+          timeLeft < 60 
+            ? "bg-destructive/10 text-destructive border-destructive animate-pulse" 
+            : "bg-muted text-foreground border-border"
+        )}>
+          <RotateCcw className="w-4 h-4" />
+          {formatTime(timeLeft)}
         </div>
       </div>
 
@@ -281,13 +319,28 @@ export default function Quiz() {
           </div>
 
           {showResult && question?.explanation && (
-            <motion.p
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-4 p-4 rounded-xl bg-muted text-sm text-muted-foreground"
+              className={cn(
+                "mt-4 p-4 rounded-xl text-sm",
+                selected === question.correct_answer 
+                  ? "bg-primary/5 text-primary border border-primary/20" 
+                  : "bg-destructive/5 text-destructive border border-destructive/20"
+              )}
             >
-              💡 {question.explanation}
-            </motion.p>
+              <p className="font-bold mb-1 flex items-center gap-2">
+                {selected === question.correct_answer ? (
+                  <CheckCircle2 className="w-4 h-4" />
+                ) : (
+                  <XCircle className="w-4 h-4" />
+                )}
+                {selected === question.correct_answer ? "Correct!" : "Explanation"}
+              </p>
+              <div className="text-muted-foreground leading-relaxed">
+                {question.explanation}
+              </div>
+            </motion.div>
           )}
         </motion.div>
       </AnimatePresence>

@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -142,4 +142,41 @@
   .font-display {
     font-family: var(--font-display);
   }
+
+  .glass-card {
+    @apply bg-card/60 backdrop-blur-xl border border-white/20 dark:border-white/10;
+  }
+
+  .mesh-gradient {
+    background-color: hsl(220 25% 12%);
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(160, 84%, 39%, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(250, 70%, 55%, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(35, 95%, 55%, 0.15) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(160, 84%, 39%, 0.15) 0px, transparent 50%);
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .progress-glow {
+    box-shadow: 0 0 15px -3px var(--primary);
+  }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 10s ease infinite;
 }
